@@ -43,7 +43,7 @@ function msToString(ms)
     finalTime += ((m < 10) ? "0" + m : m) + ":"
     finalTime += ((s < 10) ? "0" + s : s)
     if (ms)
-        finalTime += "." + ((ms < 10) ? "0" + ms : ms)
+        finalTime += "." + ((ms < 10) ? "0" + parseInt(ms) : parseInt(ms))
 
     return finalTime
 }
@@ -87,7 +87,7 @@ function msToStringWithPrecision(ms, precision)
 
 function posToMs(x, timescale)
 {
-    //100 : 1000 / timescale = x : res
+    //100 : 1000 / timescale = x : result
     return parseInt(10 * timescale * x)
 }
 

@@ -147,7 +147,7 @@ Rectangle
                     height: editorColumn.itemsHeight
                     model: fixtureManager.groupsListModel
                     currentValue: rgbMatrixEditor.fixtureGroup
-                    onValuechanged: rgbMatrixEditor.fixtureGroup = value
+                    onValueChanged: rgbMatrixEditor.fixtureGroup = value
                 }
             }
 
@@ -157,6 +157,7 @@ Rectangle
                 width: editorColumn.width
                 matrixSize: rgbMatrixEditor.previewSize
                 matrixData: rgbMatrixEditor.previewData
+                maximumHeight: rgbmeContainer.height / 3
             }
 
             // row 3
@@ -182,13 +183,13 @@ Rectangle
                     onCurrentTextChanged:
                     {
                         rgbMatrixEditor.algorithmIndex = currentIndex
-                        rgbParamsLoader.sourceComponent = null
+                        paramSection.sectionContents = null
                         if (currentText == "Text")
-                            rgbParamsLoader.sourceComponent = textAlgoComponent
+                            paramSection.sectionContents = textAlgoComponent
                         else if (currentText == "Image")
-                            rgbParamsLoader.sourceComponent = imageAlgoComponent
+                            paramSection.sectionContents = imageAlgoComponent
                         else
-                            rgbParamsLoader.sourceComponent = scriptAlgoComponent
+                            paramSection.sectionContents = scriptAlgoComponent
                     }
                 }
             }
@@ -324,23 +325,71 @@ Rectangle
                 //Rectangle { Layout.fillWidth: true; height: parent.height; color: "transparent" }
             }
 
-            Rectangle
+            SectionBox
             {
-                width: parent.width
-                height: editorColumn.itemsHeight
-                visible: rgbParamsLoader.sourceComponent ? true : false
+                id: paramSection
+                width: editorColumn.colWidth - 5
+                visible: sectionContents ? true : false
 
-                color: UISettings.bgLight
-                RobotoText { label: qsTr("Parameters") }
+                sectionLabel: qsTr("Parameters")
+                sectionContents: null
             }
-
-            Loader
+            SectionBox
             {
-                id: rgbParamsLoader
-                width: editorColumn.colWidth
-                source: ""
+                id: directionSection
+                width: editorColumn.colWidth - 5
+                sectionLabel: qsTr("Order and direction")
+                sectionContents:
+                    GridLayout
+                    {
+                        width: parent.width
+                        columns: 4
+                        columnSpacing: 4
+                        rowSpacing: 4
+
+                        // Row 1
+                        IconPopupButton
+                        {
+                            ListModel
+                            {
+                                id: runOrderModel
+                                ListElement { mLabel: qsTr("Loop"); mIcon: "qrc:/loop.svg"; mValue: Function.Loop }
+                                ListElement { mLabel: qsTr("Single Shot"); mIcon: "qrc:/arrow-end.svg"; mValue: Function.SingleShot }
+                                ListElement { mLabel: qsTr("Ping Pong"); mIcon: "qrc:/pingpong.svg"; mValue: Function.PingPong }
+                            }
+                            model: runOrderModel
+
+                            currentValue: rgbMatrixEditor.runOrder
+                            onValueChanged: rgbMatrixEditor.runOrder = value
+                        }
+                        RobotoText
+                        {
+                            label: qsTr("Run Order")
+                            Layout.fillWidth: true
+                        }
+
+                        IconPopupButton
+                        {
+                            ListModel
+                            {
+                                id: directionModel
+                                ListElement { mLabel: qsTr("Forward"); mIcon: "qrc:/forward.svg"; mValue: Function.Forward }
+                                ListElement { mLabel: qsTr("Backward"); mIcon: "qrc:/back.svg"; mValue: Function.Backward }
+                            }
+                            model: directionModel
+
+                            currentValue: rgbMatrixEditor.direction
+                            onValueChanged: rgbMatrixEditor.direction = value
+                        }
+                        RobotoText
+                        {
+                            label: qsTr("Direction")
+                            Layout.fillWidth: true
+                        }
+
+                    } // GridLayout
             }
-        } // ColumnLayout
+        } // Column
     } // Flickable
     ScrollBar { id: sbar; flickable: editorFlickable }
 
@@ -586,12 +635,16 @@ Rectangle
             {
                 comboComponent.createObject(scriptAlgoGrid,
                                {"propName": propName, "model": model, "currentIndex": currentIndex });
+                if (comboComponent.status !== Component.Ready)
+                    console.log("Combo component is not ready !!")
             }
 
             function addSpinBox(propName, min, max, currentValue)
             {
                 spinComponent.createObject(scriptAlgoGrid,
                               {"propName": propName, "minimumValue": min, "maximumValue": max, "value": currentValue });
+                if (spinComponent.status !== Component.Ready)
+                    console.log("Spin component is not ready !!")
             }
 
             Component.onCompleted:

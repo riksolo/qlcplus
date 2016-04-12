@@ -26,7 +26,9 @@
 #include "virtualconsole.h"
 #include "vcwidget.h"
 #include "vcbutton.h"
+#include "vcslider.h"
 #include "vcframe.h"
+#include "vclabel.h"
 #include "doc.h"
 
 #define KXMLQLCVCProperties "Properties"
@@ -69,6 +71,8 @@ VirtualConsole::VirtualConsole(QQuickView *view, Doc *doc, QObject *parent)
     qmlRegisterType<VCWidget>("com.qlcplus.classes", 1, 0, "VCWidget");
     qmlRegisterType<VCFrame>("com.qlcplus.classes", 1, 0, "VCFrame");
     qmlRegisterType<VCButton>("com.qlcplus.classes", 1, 0, "VCButton");
+    qmlRegisterType<VCLabel>("com.qlcplus.classes", 1, 0, "VCLabel");
+    qmlRegisterType<VCSlider>("com.qlcplus.classes", 1, 0, "VCSlider");
 }
 
 void VirtualConsole::renderPage(QQuickItem *parent, QQuickItem *contentItem, int page)
@@ -146,7 +150,6 @@ void VirtualConsole::addWidgetToMap(VCWidget* widget)
     // Valid ID ?
     if (widget->id() != VCWidget::invalidId())
     {
-
         // Maybe we don't know this widget yet
         if (!m_widgetsMap.contains(widget->id()))
         {

@@ -39,11 +39,11 @@
 AudioDecoderMAD::~AudioDecoderMAD()
 {
     deinit();
-    if (m_input_buf)
+    if (m_input_buf != NULL)
     {
         qDebug("AudioDecoderMAD: deleting input_buf");
         delete [] m_input_buf;
-        m_input_buf = 0;
+        m_input_buf = NULL;
     }
 }
 
@@ -229,7 +229,7 @@ bool AudioDecoderMAD::findHeader()
             if (m_input_bytes <= 0)
             {
                 qDebug() << "Cannot read data from file";
-                break;
+                return false;
             }
 
             mad_stream_buffer(&m_stream, (unsigned char *) m_input_buf + remaining, m_input_bytes);
@@ -564,3 +564,10 @@ qint64 AudioDecoderMAD::madOutput(char *data, qint64 size)
     }
     return m_output_bytes;
 }
+
+/*****************************************************************************
+ * Plugin export
+ ****************************************************************************/
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_EXPORT_PLUGIN2(audiodecodermad, AudioDecoderMAD)
+#endif

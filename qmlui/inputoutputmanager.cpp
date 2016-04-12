@@ -23,6 +23,7 @@
 #include "inputoutputmanager.h"
 #include "audiorenderer_qt.h"
 #include "audiocapture_qt.h"
+#include "audioplugincache.h"
 #include "qlcioplugin.h"
 #include "outputpatch.h"
 #include "inputpatch.h"
@@ -40,6 +41,9 @@ InputOutputManager::InputOutputManager(Doc *doc, QObject *parent)
     qmlRegisterType<Universe>("com.qlcplus.classes", 1, 0, "Universe");
     qmlRegisterType<InputPatch>("com.qlcplus.classes", 1, 0, "InputPatch");
     qmlRegisterType<OutputPatch>("com.qlcplus.classes", 1, 0, "OutputPatch");
+
+    connect(m_doc, SIGNAL(loaded()),
+            this, SLOT(slotDocLoaded()));
 }
 
 QQmlListProperty<Universe> InputOutputManager::universes()
@@ -53,6 +57,26 @@ QQmlListProperty<Universe> InputOutputManager::universes()
 QStringList InputOutputManager::universeNames() const
 {
     return m_ioMap->universeNames();
+}
+
+QVariant InputOutputManager::universesListModel() const
+{
+    QVariantList universesList;
+
+    QVariantMap allMap;
+    allMap.insert("mLabel", tr("All universes"));
+    allMap.insert("mValue", (int)Universe::invalid());
+    universesList.append(allMap);
+
+    foreach(Universe *uni, m_ioMap->universes())
+    {
+        QVariantMap uniMap;
+        uniMap.insert("mLabel", uni->name());
+        uniMap.insert("mValue", uni->id());
+        universesList.append(uniMap);
+    }
+
+    return QVariant::fromValue(universesList);
 }
 
 QVariant InputOutputManager::audioInputDevice()
@@ -71,7 +95,7 @@ QVariant InputOutputManager::audioInputDevice()
         return QVariant::fromValue(devMap);
     }
 
-    QList<AudioDeviceInfo> devList = AudioRendererQt::getDevicesInfo();
+    QList<AudioDeviceInfo> devList = m_doc->audioPluginCache()->audioDevicesList();
     foreach( AudioDeviceInfo info, devList)
     {
         if (info.capabilities & AUDIO_CAP_INPUT &&
@@ -103,7 +127,7 @@ QVariant InputOutputManager::audioOutputDevice()
         return QVariant::fromValue(devMap);
     }
 
-    QList<AudioDeviceInfo> devList = AudioRendererQt::getDevicesInfo();
+    QList<AudioDeviceInfo> devList = m_doc->audioPluginCache()->audioDevicesList();
     foreach( AudioDeviceInfo info, devList)
     {
         if (info.capabilities & AUDIO_CAP_OUTPUT &&
@@ -122,7 +146,7 @@ QVariant InputOutputManager::audioOutputDevice()
 QVariant InputOutputManager::audioInputSources()
 {
     QVariantList inputSources;
-    QList<AudioDeviceInfo> devList = AudioRendererQt::getDevicesInfo();
+    QList<AudioDeviceInfo> devList = m_doc->audioPluginCache()->audioDevicesList();
 
     QVariantMap defAudioMap;
     defAudioMap.insert("name", tr("Default device"));
@@ -146,7 +170,7 @@ QVariant InputOutputManager::audioInputSources()
 QVariant InputOutputManager::audioOutputSources()
 {
     QVariantList outputSources;
-    QList<AudioDeviceInfo> devList = AudioRendererQt::getDevicesInfo();
+    QList<AudioDeviceInfo> devList = m_doc->audioPluginCache()->audioDevicesList();
 
     QVariantMap defAudioMap;
     defAudioMap.insert("name", tr("Default device"));
@@ -318,6 +342,11 @@ void InputOutputManager::setSelectedItem(QQuickItem *item, int index)
     m_selectedItem->setProperty("z", 5);
 
     qDebug() << "[InputOutputManager] Selected universe:" << index;
+}
+
+void InputOutputManager::slotDocLoaded()
+{
+    emit universesListModelChanged();
 }
 
 

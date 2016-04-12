@@ -150,6 +150,24 @@ void DmxKeyPad::setupUi()
     m_ENTER->setText("ENTER");
     lay->addWidget(m_ENTER, 7, 2);
 
+    m_ENTER->setShortcut(Qt::Key_Enter);
+  m_0->setShortcut(Qt::Key_0);
+  m_1->setShortcut(Qt::Key_1);
+  m_2->setShortcut(Qt::Key_2);
+  m_3->setShortcut(Qt::Key_3);
+  m_4->setShortcut(Qt::Key_4);
+  m_5->setShortcut(Qt::Key_5);
+  m_6->setShortcut(Qt::Key_6);
+  m_7->setShortcut(Qt::Key_7);
+  m_8->setShortcut(Qt::Key_8);
+  m_9->setShortcut(Qt::Key_9);
+  m_AT->setShortcut(Qt::Key_Period);
+  m_MINUS->setShortcut(Qt::Key_Minus);
+  m_PLUS->setShortcut(Qt::Key_Plus);
+  m_THRU->setShortcut(Qt::Key_Asterisk);
+  m_BY->setShortcut(Qt::Key_Slash);
+  m_CLR->setShortcut(Qt::Key_End);
+  
     // Connections handling button clicks
     connect(m_0,     SIGNAL(clicked()), this, SLOT(addDigitToNumber()));
     connect(m_1,     SIGNAL(clicked()), this, SLOT(addDigitToNumber()));

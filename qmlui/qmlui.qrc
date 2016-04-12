@@ -1,7 +1,5 @@
 <RCC>
   <qresource prefix="/">
-    <file alias="qlcplus.png">../resources/icons/png/qlcplus.png</file>
-
     <file alias="dimmer-back.svg">svg/dimmer-back.svg</file>
     <file alias="dimmer-fill.svg">svg/dimmer-fill.svg</file>
     
@@ -13,6 +11,7 @@
     <file alias="ColorToolBasic.qml">qml/ColorToolBasic.qml</file>
     <file alias="ColorToolFull.qml">qml/ColorToolFull.qml</file>
     <file alias="ContextMenuEntry.qml">qml/ContextMenuEntry.qml</file>
+    <file alias="CustomCheckBox.qml">qml/CustomCheckBox.qml</file>
     <file alias="CustomComboBox.qml">qml/CustomComboBox.qml</file>
     <file alias="CustomSpinBox.qml">qml/CustomSpinBox.qml</file>
     <file alias="CustomTextEdit.qml">qml/CustomTextEdit.qml</file>
@@ -26,8 +25,10 @@
     <file alias="IconTextEntry.qml">qml/IconTextEntry.qml</file>
     <file alias="MainView.qml">qml/MainView.qml</file>
     <file alias="MenuBarEntry.qml">qml/MenuBarEntry.qml</file>
+    <file alias="PopupBox.qml">qml/PopupBox.qml</file>
     <file alias="QLCPlusFader.qml">qml/QLCPlusFader.qml</file>
     <file alias="RobotoText.qml">qml/RobotoText.qml</file>
+    <file alias="SectionBox.qml">qml/SectionBox.qml</file>
     <file alias="SidePanel.qml">qml/SidePanel.qml</file>
     <file alias="ScrollBar.qml">qml/ScrollBar.qml</file>
     <file alias="TimeEditTool.qml">qml/TimeEditTool.qml</file>
@@ -86,7 +87,7 @@
 
     <!-- Virtual Console -->
     <file alias="VirtualConsole.qml">qml/virtualconsole/VirtualConsole.qml</file>
-    <file alias="VCLeftPanel.qml">qml/virtualconsole/VCLeftPanel.qml</file>
+    <file alias="VCRightPanel.qml">qml/virtualconsole/VCRightPanel.qml</file>
     <file alias="VCPageArea.qml">qml/virtualconsole/VCPageArea.qml</file>
     <file alias="WidgetsList.qml">qml/virtualconsole/WidgetsList.qml</file>
     <file alias="WidgetDragItem.qml">qml/virtualconsole/WidgetDragItem.qml</file>
@@ -94,7 +95,9 @@
     <file alias="VCWidgetProperties.qml">qml/virtualconsole/VCWidgetProperties.qml</file>
     <file alias="VCFrameItem.qml">qml/virtualconsole/VCFrameItem.qml</file>
     <file alias="VCButtonItem.qml">qml/virtualconsole/VCButtonItem.qml</file>
+    <file alias="VCButtonProperties.qml">qml/virtualconsole/VCButtonProperties.qml</file>
     <file alias="VCLabelItem.qml">qml/virtualconsole/VCLabelItem.qml</file>
+    <file alias="VCSliderItem.qml">qml/virtualconsole/VCSliderItem.qml</file>
     
     <!-- Show Manager -->
     <file alias="ShowManager.qml">qml/showmanager/ShowManager.qml</file>

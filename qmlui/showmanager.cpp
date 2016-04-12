@@ -163,6 +163,40 @@ void ShowManager::addItem(QQuickItem *parent, int trackIdx, int startTime, quint
     emit showDurationChanged(m_currentShow->totalDuration());
 }
 
+void ShowManager::deleteShowItems(QVariantList data)
+{
+    Q_UNUSED(data)
+
+    if (m_currentShow == NULL)
+        return;
+
+    foreach(selectedShowItem ssi, m_selectedItems)
+    {
+        quint32 trackIndex = ssi.m_trackIndex;
+        qDebug() << "Selected item has track index:" << trackIndex;
+
+        Track *track = m_currentShow->tracks().at(trackIndex);
+        track->removeShowFunction(ssi.m_showFunc, true);
+        if (ssi.m_item != NULL)
+            delete ssi.m_item;
+    }
+
+    /*
+    for (int i = 0; i < data.count(); i++)
+    {
+        selectedShowItem *ssi = (selectedShowItem *)data.at(i);
+        quint32 trackIndex = ssi->m_trackIndex;
+        qDebug() << "Selected item has track index:" << trackIndex;
+
+        Track *track = m_currentShow->tracks().at(trackIndex);
+        track->removeShowFunction(sf, true);
+    }
+    */
+
+    m_selectedItems.clear();
+    emit selectedItemsCountChanged(0);
+}
+
 bool ShowManager::checkAndMoveItem(ShowFunction *sf, int originalTrackIdx, int newTrackIdx, int newStartTime)
 {
     if (m_currentShow == NULL || sf == NULL)
@@ -210,6 +244,14 @@ QQmlListProperty<Track> ShowManager::tracks()
         m_tracksList = m_currentShow->tracks();
 
     return QQmlListProperty<Track>(this, m_tracksList);
+}
+
+void ShowManager::resetContents()
+{
+    resetView();
+    m_currentTime = 0;
+    emit currentTimeChanged(m_currentTime);
+    m_currentShow = NULL;
 }
 
 void ShowManager::resetView()
@@ -291,7 +333,7 @@ void ShowManager::playShow()
     if (m_currentShow == NULL)
         return;
 
-    m_currentShow->start(m_doc->masterTimer(), false, m_currentTime);
+    m_currentShow->start(m_doc->masterTimer(), FunctionParent::master(), m_currentTime);
     emit isPlayingChanged(true);
 }
 
@@ -299,7 +341,7 @@ void ShowManager::stopShow()
 {
     if (m_currentShow != NULL && m_currentShow->isRunning())
     {
-        m_currentShow->stop();
+        m_currentShow->stop(FunctionParent::master());
         emit isPlayingChanged(false);
         return;
     }
@@ -312,6 +354,80 @@ bool ShowManager::isPlaying() const
     if (m_currentShow != NULL && m_currentShow->isRunning())
         return true;
     return false;
+}
+
+int ShowManager::selectedItemsCount() const
+{
+    return m_selectedItems.count();
+}
+
+void ShowManager::setItemSelection(int trackIdx, ShowFunction *sf, QQuickItem *item, bool selected)
+{
+    if (selected == true)
+    {
+        selectedShowItem selection;
+        selection.m_trackIndex = trackIdx;
+        selection.m_showFunc = sf;
+        selection.m_item = item;
+        m_selectedItems.append(selection);
+    }
+    else
+    {
+        for (int i = 0; i < m_selectedItems.count(); i++)
+        {
+            selectedShowItem si = m_selectedItems.at(i);
+            if (si.m_showFunc == sf)
+            {
+                m_selectedItems.removeAt(i);
+                break;
+            }
+        }
+    }
+    emit selectedItemsCountChanged(m_selectedItems.count());
+}
+
+QVariantList ShowManager::selectedItemRefs()
+{
+    QVariantList list;
+    /*
+    for (int i = 0; i < m_selectedItems.count(); i++)
+    {
+        list.append(QVariant::fromValue(m_selectedItems.at(i)));
+    }
+    */
+    return list;
+}
+
+QStringList ShowManager::selectedItemNames()
+{
+    QStringList names;
+    foreach (selectedShowItem si, m_selectedItems)
+    {
+        Function *func = m_doc->function(si.m_showFunc->functionID());
+        if (func != NULL)
+            names.append(func->name());
+    }
+
+    return names;
+}
+
+bool ShowManager::selectedItemsLocked()
+{
+    foreach (selectedShowItem si, m_selectedItems)
+    {
+        if (si.m_showFunc != NULL && si.m_showFunc->isLocked())
+            return true;
+    }
+    return false;
+}
+
+void ShowManager::setSelectedItemsLock(bool lock)
+{
+    foreach (selectedShowItem si, m_selectedItems)
+    {
+        if (si.m_showFunc != NULL)
+            si.m_showFunc->setLocked(lock);
+    }
 }
 
 void ShowManager::slotTimeChanged(quint32 msec_time)

@@ -36,12 +36,15 @@
 #define KXMLQLCVCButtonIntensity "Intensity"
 #define KXMLQLCVCButtonIntensityAdjust "Adjust"
 
+class FunctionParent;
+
 class VCButton : public VCWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(Action actionType READ actionType WRITE setActionType NOTIFY actionTypeChanged)
+    Q_PROPERTY(ButtonAction actionType READ actionType WRITE setActionType NOTIFY actionTypeChanged)
     Q_PROPERTY(bool isOn READ isOn WRITE setOn NOTIFY isOnChanged)
+    Q_PROPERTY(QString functionName READ functionName NOTIFY functionNameChanged)
 
     /*********************************************************************
      * Initialization
@@ -51,9 +54,14 @@ public:
     VCButton(Doc* doc = NULL, QObject *parent = 0);
     virtual ~VCButton();
 
+    /** @reimp */
     void setID(quint32 id);
 
+    /** @reimp */
     void render(QQuickView *view, QQuickItem *parent);
+
+    /** @reimp */
+    QString propertiesResource() const;
 
     /*********************************************************************
      * Function attachment
@@ -75,6 +83,10 @@ public:
      */
     quint32 function() const;
 
+    /** Get the name of the function attached to a VCButton
+     *  as string. Empty if no function is attached */
+    QString functionName() const;
+
     /**
      *  The actual method used to request a change of state of this
      *  Button. Depending on the action type this will start/stop
@@ -94,6 +106,9 @@ protected slots:
     /** Basically the same as slotFunctionStopped() but for flash signal */
     void slotFunctionFlashing(quint32 fid, bool state);
 
+private:
+    FunctionParent functionParent() const;
+
 protected:
     /** The function that this button is controlling */
     quint32 m_function;
@@ -110,6 +125,7 @@ public:
 
 signals:
     void isOnChanged(bool isOn);
+    void functionNameChanged(QString name);
 
 protected:
     bool m_isOn;
@@ -124,21 +140,21 @@ public:
      * Blackout: Toggle blackout on/off.
      * StopAll: Stop all functions (panic button).
      */
-    enum Action { Toggle, Flash, Blackout, StopAll };
-    Q_ENUMS(Action)
+    enum ButtonAction { Toggle, Flash, Blackout, StopAll };
+    Q_ENUMS(ButtonAction)
 
-    Action actionType() const;
+    ButtonAction actionType() const;
 
-    void setActionType(Action actionType);
+    void setActionType(ButtonAction actionType);
 
-    static QString actionToString(Action action);
-    static Action stringToAction(const QString& str);
+    static QString actionToString(ButtonAction action);
+    static ButtonAction stringToAction(const QString& str);
 
 signals:
-    void actionTypeChanged(Action actionType);
+    void actionTypeChanged(ButtonAction actionType);
 
 protected:
-    Action m_actionType;
+    ButtonAction m_actionType;
 
     /*********************************************************************
      * Startup intensity adjustment

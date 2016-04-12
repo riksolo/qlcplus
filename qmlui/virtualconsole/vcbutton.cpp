@@ -65,6 +65,11 @@ void VCButton::render(QQuickView *view, QQuickItem *parent)
     item->setProperty("buttonObj", QVariant::fromValue(this));
 }
 
+QString VCButton::propertiesResource() const
+{
+    return QString("qrc:/VCButtonProperties.qml");
+}
+
 /*********************************************************************
  * Function attachment
  *********************************************************************/
@@ -87,7 +92,7 @@ void VCButton::setFunction(quint32 fid)
         if(current->isRunning())
         {
             running = true;
-            current->stop();
+            current->stop(functionParent());
         }
     }
 
@@ -103,8 +108,11 @@ void VCButton::setFunction(quint32 fid)
                 this, SLOT(slotFunctionFlashing(quint32,bool)));
 
         m_function = fid;
+        if (caption().isEmpty())
+            setCaption(function->name());
         if(running)
-            function->start(m_doc->masterTimer());
+            function->start(m_doc->masterTimer(), functionParent());
+        emit functionNameChanged(function->name());
     }
     else
     {
@@ -117,6 +125,17 @@ void VCButton::setFunction(quint32 fid)
 quint32 VCButton::function() const
 {
     return m_function;
+}
+
+QString VCButton::functionName() const
+{
+    if (m_function != Function::invalidId())
+    {
+        Function* function = m_doc->function(m_function);
+        if (function != NULL)
+            return function->name();
+    }
+    return QString();
 }
 
 void VCButton::requestStateChange(bool pressed)
@@ -140,7 +159,7 @@ void VCButton::requestStateChange(bool pressed)
             else if (m_isOn == true && pressed == false)
             {
                 if (f->isRunning())
-                    f->stop();
+                    f->stop(functionParent());
             }
         }
         break;
@@ -182,7 +201,7 @@ void VCButton::notifyFunctionStarting(VCWidget *widget, quint32 fid, qreal fInte
     if (m_function != fid)
     {
         if (f->isRunning())
-            f->stop();
+            f->stop(functionParent());
     }
     else
     {
@@ -190,7 +209,7 @@ void VCButton::notifyFunctionStarting(VCWidget *widget, quint32 fid, qreal fInte
             f->adjustAttribute(startupIntensity() * intensity(), Function::Intensity);
         else
             f->adjustAttribute(intensity(), Function::Intensity);
-        f->start(m_doc->masterTimer());
+        f->start(m_doc->masterTimer(), functionParent());
     }
 }
 
@@ -228,6 +247,11 @@ void VCButton::slotFunctionFlashing(quint32 fid, bool state)
     setOn(state);
 }
 
+FunctionParent VCButton::functionParent() const
+{
+    return FunctionParent(FunctionParent::ManualVCWidget, id());
+}
+
 /*********************************************************************
  * Button state
  *********************************************************************/
@@ -253,12 +277,12 @@ void VCButton::setOn(bool isOn)
  * Button action
  *********************************************************************/
 
-VCButton::Action VCButton::actionType() const
+VCButton::ButtonAction VCButton::actionType() const
 {
     return m_actionType;
 }
 
-void VCButton::setActionType(VCButton::Action actionType)
+void VCButton::setActionType(ButtonAction actionType)
 {
     if (m_actionType == actionType)
         return;
@@ -267,7 +291,7 @@ void VCButton::setActionType(VCButton::Action actionType)
     emit actionTypeChanged(actionType);
 }
 
-QString VCButton::actionToString(VCButton::Action action)
+QString VCButton::actionToString(VCButton::ButtonAction action)
 {
     if (action == Flash)
         return QString(KXMLQLCVCButtonActionFlash);
@@ -279,7 +303,7 @@ QString VCButton::actionToString(VCButton::Action action)
         return QString(KXMLQLCVCButtonActionToggle);
 }
 
-VCButton::Action VCButton::stringToAction(const QString& str)
+VCButton::ButtonAction VCButton::stringToAction(const QString& str)
 {
     if (str == KXMLQLCVCButtonActionFlash)
         return Flash;

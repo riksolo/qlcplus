@@ -26,8 +26,29 @@ VCWidgetItem
 {
     id: buttonRoot
     property VCButton buttonObj: null
+
     property bool isOn: buttonObj ? buttonObj.isOn : false
+    property int btnAction: buttonObj ? buttonObj.actionType : VCButton.Toggle
+
     radius: 4
+
+    gradient: Gradient
+    {
+        GradientStop { position: 0 ; color: Qt.lighter(buttonRoot.color, 1.3) }
+        GradientStop { position: 1 ; color: buttonRoot.color }
+    }
+
+    function checkActionType()
+    {
+        if (btnAction === VCButton.Flash)
+            buttonIcon.source = "qrc:/flash.svg"
+        else if (btnAction === VCButton.StopAll)
+            buttonIcon.source = "qrc:/stopall.svg"
+        else if (btnAction === VCButton.Blackout)
+            buttonIcon.source = "qrc:/blackout.svg"
+        else
+            buttonIcon.source = ""
+    }
 
     onIsOnChanged:
     {
@@ -38,23 +59,12 @@ VCWidgetItem
         }
     }
 
-    gradient: Gradient
-    {
-        GradientStop { position: 0 ; color: Qt.lighter(buttonRoot.color, 1.3) }
-        GradientStop { position: 1 ; color: buttonRoot.color }
-    }
-
     onButtonObjChanged:
     {
         setCommonProperties(buttonObj)
-
-        if (buttonObj.actionType === VCButton.Flash)
-            buttonIcon.source = "qrc:/flash.svg"
-        else if (buttonObj.actionType === VCButton.StopAll)
-            buttonIcon.source = "qrc:/stopall.svg"
-        else if (buttonObj.actionType === VCButton.Blackout)
-            buttonIcon.source = "qrc:/blackout.svg"
+        checkActionType()
     }
+    onBtnActionChanged: checkActionType()
 
     Rectangle
     {
@@ -149,6 +159,8 @@ VCWidgetItem
         z: 2 // this area must be above the VCWidget resize controls
         keys: [ "function" ]
 
+        onEntered: virtualConsole.setDropTarget(buttonRoot, true)
+        onExited: virtualConsole.setDropTarget(buttonRoot, false)
         onDropped:
         {
             // attach function here

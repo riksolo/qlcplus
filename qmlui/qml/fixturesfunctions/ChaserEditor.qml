@@ -384,10 +384,11 @@ Rectangle
 
         ListView
         {
-            id: cFunctionList
+            id: cStepsList
             width: parent.width
             height: ceContainer.height - 40 - chListHeader.height - chModes.height
             boundsBehavior: Flickable.StopAtBounds
+            clip: true
 
             property int dragInsertIndex: -1
 
@@ -411,7 +412,7 @@ Rectangle
                     col6Width: durCol.width
 
                     indexInList: index
-                    highlightIndex: cFunctionList.dragInsertIndex
+                    highlightIndex: cStepsList.dragInsertIndex
 
                     onClicked:
                     {
@@ -429,27 +430,27 @@ Rectangle
                 {
                     console.log("Item dropped here. x: " + drag.x + " y: " + drag.y)
                     console.log("Item fID: " + drag.source.funcID)
-                    chaserEditor.addFunction(drag.source.funcID, cFunctionList.dragInsertIndex)
-                    cFunctionList.dragInsertIndex = -1
+                    chaserEditor.addFunction(drag.source.funcID, cStepsList.dragInsertIndex)
+                    cStepsList.dragInsertIndex = -1
                 }
                 onPositionChanged:
                 {
-                    var idx = cFunctionList.indexAt(drag.x, drag.y)
+                    var idx = cStepsList.indexAt(drag.x, drag.y)
                     //console.log("Item index:" + idx)
-                    cFunctionList.dragInsertIndex = idx
+                    cStepsList.dragInsertIndex = idx
                 }
             }
+            ScrollBar { flickable: cStepsList }
         }
 
-        Rectangle { height: 1; width: parent.width; color: UISettings.bgLight }
-
-        Rectangle
+        SectionBox
         {
             id: chModes
             width: parent.width
-            height: (UISettings.iconSizeDefault * 2) + 6
-            color: "transparent"
+            isExpanded: false
+            sectionLabel: qsTr("Run properties")
 
+            sectionContents:
             GridLayout
             {
                 x: 4
@@ -471,6 +472,7 @@ Rectangle
                     }
                     model: runOrderModel
 
+                    currentValue: chaserEditor.runOrder
                     onValueChanged: chaserEditor.runOrder = value
                 }
                 RobotoText
@@ -489,6 +491,7 @@ Rectangle
                     }
                     model: directionModel
 
+                    currentValue: chaserEditor.direction
                     onValueChanged: chaserEditor.direction = value
                 }
                 RobotoText
@@ -511,8 +514,8 @@ Rectangle
                         ListElement { mLabel: qsTr("Per Step"); mTextIcon: "S"; mValue: Chaser.PerStep }
                     }
                     model: fadeInModel
-                    currentIndex: chaserEditor.stepsFadeIn
 
+                    currentValue: chaserEditor.stepsFadeIn
                     onValueChanged: chaserEditor.stepsFadeIn = value
                 }
                 RobotoText
@@ -531,8 +534,8 @@ Rectangle
                         ListElement { mLabel: qsTr("Per Step"); mTextIcon: "S"; mValue: Chaser.PerStep }
                     }
                     model: fadeOutModel
-                    currentIndex: chaserEditor.stepsFadeOut
 
+                    currentValue: chaserEditor.stepsFadeOut
                     onValueChanged: chaserEditor.stepsFadeOut = value
                 }
                 RobotoText
@@ -550,8 +553,8 @@ Rectangle
                         ListElement { mLabel: qsTr("Per Step"); mTextIcon: "S"; mValue: Chaser.PerStep }
                     }
                     model: durationModel
-                    currentIndex: chaserEditor.stepsDuration - 1
 
+                    currentValue: chaserEditor.stepsDuration
                     onValueChanged: chaserEditor.stepsDuration = value
                 }
                 RobotoText
@@ -559,9 +562,7 @@ Rectangle
                     label: qsTr("Duration")
                     Layout.fillWidth: true
                 }
-            }
-
-        }
-
+            } // end of GridLayout
+        } // end of Rectangle
     } // end of Column
 }

@@ -117,6 +117,7 @@ void VCFrame::setDisableState(bool disable)
     foreach( VCWidget* widget, this->findChildren<VCWidget*>())
         widget->setDisableState(disable);
     m_disableState = disable;
+    updateFeedback();
     //VCWidget::setDisableState(disable);
 }
 
@@ -507,6 +508,7 @@ void VCFrame::slotModeChanged(Doc::Mode mode)
         if (isDisabled())
             slotEnableButtonClicked(false);
         updateSubmasterValue();
+        updateFeedback();
     }
 
     VCWidget::slotModeChanged(mode);
@@ -614,6 +616,15 @@ void VCFrame::slotFrameKeyPressed(const QKeySequence& keySequence)
 
 void VCFrame::updateFeedback()
 {
+    QSharedPointer<QLCInputSource> src = inputSource(enableInputSourceId);
+    if (!src.isNull() && src->isValid() == true)
+    {
+        if (m_disableState == false)
+            sendFeedback(src->upperValue(), enableInputSourceId);
+        else
+            sendFeedback(src->lowerValue(), enableInputSourceId);
+    }
+
     QListIterator <VCWidget*> it(this->findChildren<VCWidget*>());
     while (it.hasNext() == true)
     {
@@ -628,16 +639,16 @@ void VCFrame::updateFeedback()
 
 void VCFrame::slotInputValueChanged(quint32 universe, quint32 channel, uchar value)
 {
-    if (isEnabled() == false || value == 0)
+    if (isEnabled() == false)
         return;
 
     quint32 pagedCh = (page() << 16) | channel;
 
-    if (checkInputSource(universe, pagedCh, value, sender(), enableInputSourceId))
+    if (checkInputSource(universe, pagedCh, value, sender(), enableInputSourceId) && value)
         setDisableState(!isDisabled());
-    else if (checkInputSource(universe, pagedCh, value, sender(), previousPageInputSourceId))
+    else if (checkInputSource(universe, pagedCh, value, sender(), previousPageInputSourceId) && value)
         slotPreviousPage();
-    else if (checkInputSource(universe, pagedCh, value, sender(), nextPageInputSourceId))
+    else if (checkInputSource(universe, pagedCh, value, sender(), nextPageInputSourceId) && value)
         slotNextPage();
 }
 
@@ -688,6 +699,8 @@ bool VCFrame::copyFrom(const VCWidget* widget)
         {
             childCopy = child->createCopy(this);
             VirtualConsole::instance()->addWidgetInMap(childCopy);
+
+            qDebug() << "Child copy in parent:" << childCopy->caption() << ", page:" << childCopy->page();
         }
 
         if (childCopy != NULL)
@@ -731,18 +744,33 @@ void VCFrame::applyProperties(VCFrameProperties const& prop)
                 {
                     VCWidget *newWidget = child->createCopy(this);
                     VirtualConsole::instance()->addWidgetInMap(newWidget);
+                    //qDebug() << "Cloning:" << newWidget->caption() << ", copy page:" << newWidget->page() << ", page to set:" << pg;
                     newWidget->setPage(pg);
                     newWidget->remapInputSources(pg);
                     newWidget->show();
-                    /**
-                     *  Remap input sources to the new page, otherwise
-                     *  all the cloned widgets would respond to the
-                     *  same controls
-                     */
-                    foreach( VCWidget* widget, newWidget->findChildren<VCWidget*>())
+
+                    bool multiPageFrame = false;
+                    if (newWidget->type() == VCWidget::FrameWidget || newWidget->type() == VCWidget::SoloFrameWidget)
                     {
-                        widget->setPage(pg);
-                        widget->remapInputSources(pg);
+                        VCFrame *fr = qobject_cast<VCFrame *>(newWidget);
+                        multiPageFrame = fr->multipageMode();
+                    }
+                    /** If the cloned widget is again a multipage frame, then there's not much
+                     *  that can be done to distinguish nested pages, so we leave the children
+                     *  mapping as it is */
+                    if (multiPageFrame == false)
+                    {
+                        /**
+                         *  Remap input sources to the new page, otherwise
+                         *  all the cloned widgets would respond to the
+                         *  same controls
+                         */
+                        foreach (VCWidget* widget, newWidget->findChildren<VCWidget*>())
+                        {
+                            //qDebug() << "Child" << widget->caption() << ", page:" << widget->page() << ", new page:" << pg;
+                            widget->setPage(pg);
+                            widget->remapInputSources(pg);
+                        }
                     }
 
                     addWidgetToPageMap(newWidget);
@@ -750,6 +778,30 @@ void VCFrame::applyProperties(VCFrameProperties const& prop)
             }
         }
         slotSetPage(0);
+    }
+    else if (multipageMode() == false)
+    {
+        setTotalPagesNumber(1);
+        resize(QSize(this->width(), this->height()));
+
+        QMapIterator <VCWidget*, int> it(m_pagesMap);
+        while (it.hasNext() == true)
+        {
+            it.next();
+            int page = it.value();
+            VCWidget *widget = it.key();
+            if (page > 0)
+            {
+                removeWidgetFromPageMap(widget);
+                delete widget;
+            }
+            else
+            {
+                widget->setEnabled(true);
+                widget->show();
+                widget->updateFeedback();
+            }
+        }
     }
     VirtualConsole* vc = VirtualConsole::instance();
     if (vc != NULL)

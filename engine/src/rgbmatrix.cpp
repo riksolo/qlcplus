@@ -488,7 +488,7 @@ void RGBMatrix::preRun(MasterTimer* timer)
         if (m_group == NULL)
         {
             // No fixture group to control
-            stop();
+            stop(FunctionParent::master());
             return;
         }
 
@@ -547,7 +547,7 @@ void RGBMatrix::write(MasterTimer* timer, QList<Universe *> universes)
         if (m_group == NULL)
         {
             // No fixture group to control
-            stop();
+            stop(FunctionParent::master());
             return;
         }
 
@@ -597,6 +597,7 @@ void RGBMatrix::postRun(MasterTimer* timer, QList<Universe *> universes)
             if (fixture != NULL)
                 canFade = fixture->channelCanFade(fc.channel());
             fc.setStart(fc.current(getAttributeValue(Intensity)));
+            fc.setCurrent(fc.current(getAttributeValue(Intensity)));
 
             fc.setElapsed(0);
             fc.setReady(false);
@@ -667,7 +668,7 @@ void RGBMatrix::roundCheck(const QSize& size)
         if (m_direction == Forward)
         {
             if (m_step >= m_algorithm->rgbMapStepCount(size) - 1)
-                stop();
+                stop(FunctionParent::master());
             else
             {
                 m_step++;
@@ -677,7 +678,7 @@ void RGBMatrix::roundCheck(const QSize& size)
         else
         {
             if (m_step <= 0)
-                stop();
+                stop(FunctionParent::master());
             else
             {
                 m_step--;

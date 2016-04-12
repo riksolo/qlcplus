@@ -1,5 +1,37 @@
+qlcplus (4.10.4) stable; urgency=low
+
+  * Scripts: Fix 4.10.3a regression that breaks values parsing (David Garyga)
+  * engine: fix relative paths when opening a project from the command line
+  * Show Manager/Audio: allow to display the waveform preview while playing a file
+  * Virtual Console/Animation: fix behavior issue when changing the associated function (David Garyga)
+  * Virtual Console/Frames: send feedbacks for the enable button
+  * Virtual Console/Frames: fix 4.10.3 regression causing frames to resize after configuration
+  * Virtual Console/Cue List: added a dedicated stop button, with external controls
+  * Plugins/OSC: fixed regression of receiving data from the wrong interface (David Garyga)
+  * Plugins/OSC: fixed regression causing not receiving data anymore when changing the input profile (David Garyga)
+  * Plugins/MIDI: distinguish MIDI beat clock start and stop (see documentation)
+  * Input Profiles Editor: it is now possible to define button custom feedbacks in a profile (see documentation)
+  * Fixture updated: Starway MaxKolor-18 (thanks to Thierry Rodolfo and Robert Box)
+  * Fixture updated: Cameo LED RGBW PAR64 18x8W (thanks to Lukas)
+  * New fixture: American DJ Mega QA Par38 (thanks to Nathan Durnan)
+  * New fixture: Martin MAC 250 Wash (thanks to Robert Box)
+  * New fixture: Luxibel LX161 (thanks to Freddy Hoogstoel)
+  * New fixture: Stairville MH-X60th LED Spot (thanks to Jasper Zevering)
+  * New fixture: Cameo CLHB400RGBW (thanks to Mihai Andrei)
+
+ -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 8 May 2016 12:13:14 +0200
+
+qlcplus (4.10.3a) stable; urgency=low
+
+  * Scripts: Fix 4.10.3 regression that breaks time values parsing (David Garyga)
+  * RGBMatrix Editor: Fix 4.10.3 regression where QLC+ hangs on duration < 20ms (David Garyga)
+
+ -- Massimo Callegari <massimocallegari@yahoo.it>  Wed, 9 Mar 2016 22:03:14 +0200
+
 qlcplus (4.10.3) stable; urgency=low
 
+  * Engine: Fix intensity channels forced back to HTP after LTP not working correctly (David Garyga)
+  * Engine: Fix functions with low intensity killing current fade outs (David Garyga)
   * Audio Capture: Fix crash when selecting another audio input while a capture is running (David Garyga)
   * Audio Capture: Fix crash when trying to use a wrongly configured audio input (David Garyga)
   * Scene Editor: Remember Channels Groups values when saving and loading a workspace (David Garyga)
@@ -17,19 +49,27 @@ qlcplus (4.10.3) stable; urgency=low
   * Plugins/ArtNet: Fix configuration issue that prevents setting a parameter back to its default value (David Garyga)
   * Plugins/OSC: Fix configuration issue that prevents setting a parameter back to its default value (David Garyga)
   * Plugins/OSC: OSC Output values range from 0.0 to 1.0
+  * Plugins/OSC: Properly handle OSC bundles (restores Lemur compatibility)
   * Virtual Console: Fix copy of a frame containing a submaster slider resulting in a broken submaster (David Garyga)
   * Virtual Console/Slider: Enable function filters in playback function selection (David Garyga)
+  * Virtual Console/Slider: Allow to force to LTP color channels controlled by a Click & Go button
   * Virtual Console/Solo Frame: Fix sliders in playback mode not actually stopping the attached function when the slider reaches 0 (David Garyga, thanks to Tubby)
   * Virtual Console/Animation: Can now be used in solo frames (David Garyga)
-  * New input profile: Behringer BCR2000 (thanks to Michael Trojacher)
-  * New fixture: Stellar Labs ECO LED PAR56, Chauvet Colorpalette II (thanks to Jimmy Traylor)
-  * New fixtures: Chauvet: COLORado 1 Solo, Ovation FD-165WW, Rogue RH1 Hybrid, COLORdash Par Hex 12 (thanks to Robert Box)
+  * Virtual Console/Frames: fix page cloning of a nested multipage frame
+  * Virtual Console/Frames: fix disabling frame pages. Now widgets get actually deleted
+  * Web access: fixed custom fixtures loading
+  * Web access: added a DMX keypad that can be accessed from the Simple Desk (thanks to Santiago Benejam Torres)
+  * Input profiles: added Behringer BCR2000 (thanks to Michael Trojacher)
+  * Input profiles: added Lemur iPad Studio Combo
+  * RGB Scripts: added Strobe script (thanks to Rob Nieuwenhuizen)
+  * New fixtures: Stellar Labs ECO LED PAR56, Chauvet Colorpalette II (thanks to Jimmy Traylor)
+  * New fixtures: Chauvet: COLORado 1 Solo, Ovation FD-165WW, Rogue RH1 Hybrid, COLORdash Par Hex 12, COLORdash Accent Quad (thanks to Robert Box)
   * New fixtures: Chauvet: Vue 1.1, Intimidator Spot 100 IRC, Abyss USB, COREpar 40 USB, COREpar UV USB (thanks to Robert Box)
   * New fixtures: Chauvet: Intimidator Scan 305 IRC, Intimidator Barrel 305 IRC, SlimPAR T6 USB, SlimBANK TRI-18 (thanks to Robert Box)
   * New fixtures: Eurolite LED CLS-9 QCL RGBW 9x8W 12, JB-Lighting A12 Tunable White, SGM G-Profile (thanks to Robert Box)
-  * New fixtures: Coemar Par Lite LED RGB (thanks to Robert Box)
+  * New fixtures: Coemar Par Lite LED RGB, OXO LED Funstrip DMX, American DJ Stinger II (thanks to Robert Box)
   * New fixture: Chauvet LED PAR 64 Tri-C (thanks to Jungle Jim and Robert Box)
-  * New fixture: American DJ VBar (thanks to Thierry Rodolfo)
+  * New fixtures: American DJ VBar, American DJ Jellydome, Briteq LDP Powerbar 6TC/12TC (thanks to Thierry Rodolfo)
   * New fixture: Sagitter Slimpar 18 RGB (thanks to Daniele Fogale)
   * New fixture: Microh LED Tri Bar (thanks to Michael Tughan)
   * New fixture: American DJ 12P Hex Pearl (thanks to Ethan Moses)
@@ -41,9 +81,13 @@ qlcplus (4.10.3) stable; urgency=low
   * New fixtures: Varytec LED Pad 7 BA-D, American DJ X-Scan LED Plus, Showtec Blade Runner (thanks to DjProWings)
   * New fixture: Involight LED CC60S (thanks to Stephane Hofman)
   * New fixture: Stairville MH-x200 Pro Spot (thanks to Mirek Škop)
-  * New fixture: Varytec LED Giga Bar 4 MKII (thanks to Daniel Schauder)
+  * New fixtures: Varytec LED Giga Bar 4 MKII, Eurolite LED KLS Laser Bar FX Light Set (thanks to Daniel Schauder)
+  * New fixture: Chauvet Mayhem (thanks to Jonathan Wilson)
+  * New fixture: Ayra TDC Agaricus (thanks to Rob Nieuwenhuizen)
+  * New fixture: American DJ Pinspot LED Quad DMX (thanks to Christian Polzer)
+  * New fixture: Stairville AF-180 LED Fogger Co2 FX (thanks to Johannes Uhl)
 
- -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 7 Feb 2016 20:21:22 +0200
+ -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 6 Mar 2016 20:21:22 +0200
 
 qlcplus (4.10.2) stable; urgency=low
 

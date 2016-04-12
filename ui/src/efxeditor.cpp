@@ -307,7 +307,7 @@ void EFXEditor::slotTestClicked()
 {
     if (m_testButton->isChecked() == true)
     {
-        m_efx->start(m_doc->masterTimer());
+        m_efx->start(m_doc->masterTimer(), functionParent());
 
         //Restart animation so preview it is in sync with real test
         m_previewArea->restart();
@@ -330,8 +330,7 @@ void EFXEditor::slotModeChanged(Doc::Mode mode)
 {
     if (mode == Doc::Operate)
     {
-        if (m_efx->stopped() == false)
-            m_efx->stopAndWait();
+        m_efx->stopAndWait();
         m_testButton->setChecked(false);
         m_testButton->setEnabled(false);
     }
@@ -374,10 +373,15 @@ void EFXEditor::continueRunning(bool running)
     if (running == true)
     {
         if (m_doc->mode() == Doc::Operate)
-            m_efx->start(m_doc->masterTimer());
+            m_efx->start(m_doc->masterTimer(), functionParent());
         else
             m_testButton->click();
     }
+}
+
+FunctionParent EFXEditor::functionParent() const
+{
+    return FunctionParent::master();
 }
 
 EfxUiState * EFXEditor::efxUiState()
@@ -395,11 +399,7 @@ void EFXEditor::updateFixtureTree()
     QListIterator <EFXFixture*> it(m_efx->fixtures());
     while (it.hasNext() == true)
         addFixtureItem(it.next());
-    m_tree->resizeColumnToContents(KColumnNumber);
-    m_tree->resizeColumnToContents(KColumnName);
-    m_tree->resizeColumnToContents(KColumnMode);
-    m_tree->resizeColumnToContents(KColumnReverse);
-    m_tree->resizeColumnToContents(KColumnStartOffset);
+    m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 QTreeWidgetItem* EFXEditor::fixtureItem(EFXFixture* ef)
@@ -546,11 +546,7 @@ void EFXEditor::removeFixtureItem(EFXFixture* ef)
     updateIndices(from, m_tree->topLevelItemCount() - 1);
     redrawPreview();
 
-    m_tree->resizeColumnToContents(KColumnNumber);
-    m_tree->resizeColumnToContents(KColumnName);
-    m_tree->resizeColumnToContents(KColumnMode);
-    m_tree->resizeColumnToContents(KColumnReverse);
-    m_tree->resizeColumnToContents(KColumnStartOffset);
+    m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 void EFXEditor::slotDialDestroyed(QObject *)
@@ -731,11 +727,7 @@ void EFXEditor::slotAddFixtureClicked()
                 delete ef;
         }
 
-        m_tree->resizeColumnToContents(KColumnNumber);
-        m_tree->resizeColumnToContents(KColumnName);
-        m_tree->resizeColumnToContents(KColumnMode);
-        m_tree->resizeColumnToContents(KColumnReverse);
-        m_tree->resizeColumnToContents(KColumnStartOffset);
+        m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 
         redrawPreview();
 

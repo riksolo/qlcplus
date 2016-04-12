@@ -247,8 +247,7 @@ ChaserEditor::~ChaserEditor()
 
     // double check that the Chaser still exists !
     if (m_liveMode == false &&
-        m_doc->functions().contains(m_chaser) == true &&
-        m_chaser->stopped() == false)
+        m_doc->functions().contains(m_chaser) == true)
         m_chaser->stopAndWait();
 }
 
@@ -260,8 +259,7 @@ void ChaserEditor::showOrderAndDirection(bool show)
 
 void ChaserEditor::stopTest()
 {
-    if (m_chaser->stopped() == false)
-        m_chaser->stopAndWait();
+    m_chaser->stopAndWait();
 }
 
 void ChaserEditor::selectStepAtTime(quint32 time)
@@ -366,7 +364,16 @@ void ChaserEditor::slotAddClicked()
     else
     {
         FunctionSelection fs(this, m_doc);
-        fs.setDisabledFunctions(QList <quint32>() << m_chaser->id());
+        {
+            QList<quint32> disabledList;
+            disabledList << m_chaser->id();
+            foreach (Function* function, m_doc->functions())
+            {
+                if (function->contains(m_chaser->id()))
+                    disabledList << function->id();
+            }
+            fs.setDisabledFunctions(disabledList);
+        }
 
         if (fs.exec() == QDialog::Accepted)
         {
@@ -486,7 +493,7 @@ void ChaserEditor::slotSpeedDialToggle(bool state)
 
 void ChaserEditor::slotItemSelectionChanged()
 {
-    if (m_chaser->isRunning() == false)
+    if (!m_chaser->isRunning())
     {
         if (m_tree->selectedItems().count() > 0)
         {
@@ -588,13 +595,7 @@ void ChaserEditor::slotItemChanged(QTreeWidgetItem *item, int column)
     m_chaser->replaceStep(step, idx);
     updateItem(item, step);
 
-    m_tree->resizeColumnToContents(COL_NUM);
-    m_tree->resizeColumnToContents(COL_NAME);
-    m_tree->resizeColumnToContents(COL_FADEIN);
-    m_tree->resizeColumnToContents(COL_HOLD);
-    m_tree->resizeColumnToContents(COL_FADEOUT);
-    m_tree->resizeColumnToContents(COL_DURATION);
-    m_tree->resizeColumnToContents(COL_NOTES);
+    m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 /****************************************************************************
@@ -1021,13 +1022,15 @@ void ChaserEditor::slotTestPlay()
     m_testPreviousButton->setEnabled(true);
     m_testNextButton->setEnabled(true);
 
-    if (m_chaser->stopped() == true)
-    {
-        int idx = getCurrentIndex();
-        if (idx >= 0)
-            m_chaser->setStepIndex(idx);
-        m_chaser->start(m_doc->masterTimer());
-    }
+    int idx = getCurrentIndex();
+    if (idx >= 0)
+        m_chaser->setStepIndex(idx);
+    m_chaser->start(m_doc->masterTimer(), functionParent());
+}
+
+FunctionParent ChaserEditor::functionParent() const
+{
+    return FunctionParent::master();
 }
 
 void ChaserEditor::slotTestStop()
@@ -1035,8 +1038,7 @@ void ChaserEditor::slotTestStop()
     m_testPreviousButton->setEnabled(false);
     m_testNextButton->setEnabled(false);
 
-    if (m_chaser->stopped() == false)
-        m_chaser->stopAndWait();
+    m_chaser->stopAndWait();
 }
 
 void ChaserEditor::slotTestPreviousClicked()
@@ -1055,8 +1057,8 @@ void ChaserEditor::slotModeChanged(Doc::Mode mode)
     {
         m_testPlayButton->setEnabled(false);
         m_testStopButton->setEnabled(false);
-        if (m_liveMode == false && m_chaser->stopped() == false)
-            m_chaser->stop();
+        if (m_liveMode == false)
+            m_chaser->stop(functionParent());
     }
     else
     {
@@ -1070,30 +1072,6 @@ void ChaserEditor::slotStepChanged(int stepNumber)
     // Select only the item at step StepNumber
     // If stepNumber is outside of bounds, select nothing
     m_tree->setCurrentItem(m_tree->topLevelItem(stepNumber));
-}
-
-bool ChaserEditor::interruptRunning()
-{
-    if (m_chaser->stopped() == false)
-    {
-        m_chaser->stopAndWait();
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void ChaserEditor::continueRunning(bool running)
-{
-    if (running == true)
-    {
-        if (m_doc->mode() == Doc::Operate)
-            m_chaser->start(m_doc->masterTimer());
-        else
-            m_testStopButton->click();
-    }
 }
 
 /****************************************************************************
@@ -1119,13 +1097,7 @@ void ChaserEditor::updateTree(bool clear)
         updateItem(item, step);
     }
 
-    m_tree->resizeColumnToContents(COL_NUM);
-    m_tree->resizeColumnToContents(COL_NAME);
-    m_tree->resizeColumnToContents(COL_FADEIN);
-    m_tree->resizeColumnToContents(COL_HOLD);
-    m_tree->resizeColumnToContents(COL_FADEOUT);
-    m_tree->resizeColumnToContents(COL_DURATION);
-    m_tree->resizeColumnToContents(COL_NOTES);
+    m_tree->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 void ChaserEditor::updateItem(QTreeWidgetItem* item, ChaserStep& step)

@@ -25,6 +25,7 @@
 #include "vcframe.h"
 #include "vclabel.h"
 #include "vcbutton.h"
+#include "vcslider.h"
 #include "vcsoloframe.h"
 #include "virtualconsole.h"
 
@@ -115,6 +116,9 @@ QList<VCWidget *> VCFrame::children(bool recursive)
 void VCFrame::addWidget(QQuickItem *parent, QString wType, QPoint pos)
 {
     qDebug() << "[VCFrame] adding widget of type:" << wType << pos;
+
+    // reset all the drop targets, otherwise two overlapping
+    // frames can get the same drop event
     m_vc->resetDropTargets(true);
 
     VCWidget::WidgetType type = stringToType(wType);
@@ -161,9 +165,36 @@ void VCFrame::addWidget(QQuickItem *parent, QString wType, QPoint pos)
             label->render(m_vc->view(), parent);
         }
         break;
+        case SliderWidget:
+        {
+            VCSlider *slider = new VCSlider(m_doc, this);
+            QQmlEngine::setObjectOwnership(slider, QQmlEngine::CppOwnership);
+            slider->setGeometry(QRect(pos.x(), pos.y(), 60, 200));
+            setupWidget(slider);
+            m_vc->addWidgetToMap(slider);
+            slider->render(m_vc->view(), parent);
+        }
+        break;
         default:
         break;
     }
+}
+
+void VCFrame::addFunction(QQuickItem *parent, quint32 funcID, QPoint pos, bool modifierPressed)
+{
+    Q_UNUSED(modifierPressed)
+
+    // reset all the drop targets, otherwise two overlapping
+    // frames can get the same drop event
+    m_vc->resetDropTargets(true);
+
+    VCButton *button = new VCButton(m_doc, this);
+    QQmlEngine::setObjectOwnership(button, QQmlEngine::CppOwnership);
+    button->setGeometry(QRect(pos.x(), pos.y(), 100, 100));
+    button->setFunction(funcID);
+    setupWidget(button);
+    m_vc->addWidgetToMap(button);
+    button->render(m_vc->view(), parent);
 }
 
 void VCFrame::deleteChildren()
@@ -511,6 +542,19 @@ bool VCFrame::loadXML(QXmlStreamReader &root)
                 QQmlEngine::setObjectOwnership(label, QQmlEngine::CppOwnership);
                 setupWidget(label);
                 m_vc->addWidgetToMap(label);
+            }
+        }
+        else if (root.name() == KXMLQLCVCSlider)
+        {
+            /* Create a new slider into its parent */
+            VCSlider* slider = new VCSlider(m_doc, this);
+            if (slider->loadXML(root) == false)
+                delete slider;
+            else
+            {
+                QQmlEngine::setObjectOwnership(slider, QQmlEngine::CppOwnership);
+                setupWidget(slider);
+                m_vc->addWidgetToMap(slider);
             }
         }
         else

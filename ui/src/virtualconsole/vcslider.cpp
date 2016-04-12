@@ -703,6 +703,9 @@ void VCSlider::slotClickAndGoColorChanged(QRgb color)
     // place the slider half way to reach white@255 and black@0
     if (m_slider)
         m_slider->setValue(128);
+
+    // let's force a value change to cover all the HTP/LTP cases
+    m_levelValueChanged = true;
 }
 
 void VCSlider::slotClickAndGoLevelAndPresetChanged(uchar level, QImage img)
@@ -798,7 +801,7 @@ void VCSlider::notifyFunctionStarting(quint32 fid, qreal functionIntensity)
                 qreal pIntensity = qreal(value) / qreal(UCHAR_MAX);
                 function->adjustAttribute(pIntensity * intensity(), Function::Intensity);
                 if (value == 0 && !function->stopped())
-                    function->stop();
+                    function->stop(functionParent());
             }
         }
     }
@@ -829,6 +832,11 @@ void VCSlider::slotPlaybackFunctionIntensityChanged(int attrIndex, qreal fractio
     if (m_slider)
         m_slider->setValue(int(floor((qreal(m_slider->maximum()) * fraction) + 0.5)));
     m_externalMovement = false;
+}
+
+FunctionParent VCSlider::functionParent() const
+{
+    return FunctionParent(FunctionParent::ManualVCWidget, id());
 }
 
 /*****************************************************************************
@@ -1015,7 +1023,7 @@ void VCSlider::writeDMXPlayback(MasterTimer* timer, QList<Universe *> ua)
             // Make sure we ignore the fade out time
             function->adjustAttribute(0, Function::Intensity);
             if (function->stopped() == false)
-                function->stop();
+                function->stop(functionParent());
         }
         else
         {
@@ -1024,9 +1032,8 @@ void VCSlider::writeDMXPlayback(MasterTimer* timer, QList<Universe *> ua)
                 // Since this function is started by a fader, its fade in time
                 // is decided by the fader movement.
                 function->start(
-                        timer, false, 0,
-                        0, Function::defaultSpeed(), Function::defaultSpeed()
-                        );
+                        timer, functionParent(),
+                        0, 0, Function::defaultSpeed(), Function::defaultSpeed());
             }
             emit functionStarting(m_playbackFunction, pIntensity);
             function->adjustAttribute(pIntensity * intensity(), Function::Intensity);
