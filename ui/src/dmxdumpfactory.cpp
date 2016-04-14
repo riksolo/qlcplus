@@ -75,6 +75,7 @@ DmxDumpFactory::DmxDumpFactory(Doc *doc, DmxDumpFactoryProperties *props, QWidge
                             .arg(m_fixturesTree->universeCount()).arg(m_fixturesTree->fixturesCount()).arg(m_fixturesTree->channelsCount()));
 
     m_sceneName->setText(tr("New Scene From Live %1").arg(m_doc->nextFunctionID()));
+      m_sceneName->selectAll();
     if (m_properties->dumpChannelsMode() == true)
         m_dumpAllRadio->setChecked(true);
     else

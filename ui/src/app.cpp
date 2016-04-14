@@ -678,6 +678,7 @@ void App::initActions()
 
     m_dumpDmxAction = new QAction(QIcon(":/add_dump.png"), tr("Dump DMX values to a function"), this);
     m_dumpDmxAction->setShortcut(QKeySequence(tr("CTRL+D", "Control|Dump DMX")));
+  m_dumpDmxAction->setShortcut(Qt::Key_Home);
     connect(m_dumpDmxAction, SIGNAL(triggered()), this, SLOT(slotDumpDmxIntoFunction()));
 
     m_controlPanicAction = new QAction(QIcon(":/panic.png"), tr("Stop ALL functions!"), this);

@@ -97,6 +97,8 @@ VCButtonProperties::VCButtonProperties(VCButton* button, Doc* doc)
     connect(m_blackout, SIGNAL(toggled(bool)), this, SLOT(slotActionToggled()));
     connect(m_stopAll, SIGNAL(toggled(bool)), this, SLOT(slotActionToggled()));
     connect(m_flash, SIGNAL(toggled(bool)), this, SLOT(slotActionToggled()));
+      
+      m_flash->setShortcut(Qt::Key_Asterisk);
 
     connect(m_speedDialButton, SIGNAL(toggled(bool)),
             this, SLOT(slotSpeedDialToggle(bool)));

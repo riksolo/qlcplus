@@ -46,6 +46,7 @@ InputSelectionWidget::InputSelectionWidget(Doc *doc, QWidget *parent)
     connect(m_detachKey, SIGNAL(clicked()), this, SLOT(slotDetachKey()));
 
       m_autoDetectInputButton->setShortcut(Qt::Key_S);
+      m_chooseInputButton->setShortcut(Qt::Key_C);
     connect(m_autoDetectInputButton, SIGNAL(toggled(bool)),
             this, SLOT(slotAutoDetectInputToggled(bool)));
     connect(m_chooseInputButton, SIGNAL(clicked()),
